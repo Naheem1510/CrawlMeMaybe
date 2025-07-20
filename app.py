@@ -80,12 +80,15 @@ def api_stats():
         return jsonify({'error': f'Error: {str(e)}'}), 500
 
 @app.route('/api/jobs')
+@app.route('/api/jobs')
 def api_jobs():
     try:
         conn = get_db_connection()
         print(f"Connected to database: {os.getenv('DATABASE_URL')}")
         cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute("SELECT id, title, company, location, salary, link, description, posted_date, source, sector FROM jobs ORDER BY posted_date DESC LIMIT 20")
+        query = 'SELECT id, title, company, location, salary, link, description, posted_date, source, sector FROM "jobs" ORDER BY posted_date DESC'  # Remove LIMIT
+        print(f"Executing query: {query}")
+        cur.execute(query)
         jobs = cur.fetchall()
         print(f"Retrieved {len(jobs)} jobs from database")
         cur.close()
