@@ -14,7 +14,7 @@ import docx2txt
 from scraper import run_scraper
 import psycopg2
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://neondb_owner:npg_8cZUEAjReq7r@ep-dark-dew-a12j94ng-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require')
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://neondb_owner:npg_8cZUEAjReq7r@ep-patient-cake-a1yyjwrs-pooler.ap-southeast-1.aws.neon.tech/jobs?sslmode=require&channel_binding=require')
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
 
