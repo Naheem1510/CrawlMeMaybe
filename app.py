@@ -26,15 +26,6 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 CORS(app, origins=["*"])
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt'}
 
-# Database connection
-def get_db_connection():
-    return psycopg2.connect(
-        dbname="job_aggregator",
-        user="postgres",
-        password="5421",
-        host="localhost",
-        port="5432"
-    )
 
 @app.route('/')
 def index():
@@ -90,14 +81,15 @@ def api_jobs():
     try:
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute("SELECT * FROM jobs ORDER BY posted_date DESC LIMIT 20")
+        cur.execute("SELECT id, title, company, location, salary, link, description, posted_date, source, sector FROM jobs ORDER BY posted_date DESC LIMIT 20")
         jobs = cur.fetchall()
         cur.close()
         conn.close()
-        return jsonify({'jobs': jobs, 'total': len(jobs)})
+        return jsonify({'jobs': list(jobs) if jobs else [], 'total': len(jobs)})
     except Exception as e:
-        return jsonify({'error': f'Error: {str(e)}'}), 500
-
+        print(f"Error in /api/jobs: {e}")
+        return jsonify({'error': f'Error retrieving jobs: {str(e)}'}), 500
+        
 @app.route('/api/jobs/search')
 def search_jobs():
     query = request.args.get('q', '').lower()
@@ -284,7 +276,7 @@ def get_visualization_data():
 
 @app.route('/download')
 def download():
-    csv_path = "C:/Users/nahee/Downloads/fortomorrow/Web_Scrappingg/Web_Scrapping/jobs.csv"
+    csv_path = os.path.join(os.path.dirname(__file__), 'jobs.csv')
     if os.path.exists(csv_path):
         return send_file(csv_path, as_attachment=True, download_name=f'jobs_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
     return jsonify({'error': 'No jobs.csv file found!'}), 404
