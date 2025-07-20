@@ -11,3 +11,6 @@ python-multipart
 pydantic
 gunicorn
 docx2txt
+psycopg2-binary
+pypdf2
+python-docx
