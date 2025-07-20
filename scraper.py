@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import csv
@@ -10,13 +11,12 @@ from datetime import datetime
 from collections import Counter
 
 BASE_URL = "https://www.myjob.mu/ShowResults.aspx?Keywords=&Location=&Cat=22"
-CSV_FILE = "C:/Users/nahee/Downloads/fortomorrow/Web_Scrappingg/Web_Scrapping/jobs.csv"
+CSV_FILE = os.path.join(os.path.dirname(__file__), 'jobs.csv')  # Relative to script location
 
 def clean_text(text):
     if not isinstance(text, str):
         return str(text)
     return re.sub(r'[\u200b-\u200f\u202a-\u202e]', '', text).strip()
-
 def infer_sector(title):
     title = title.lower()
     hospitality_keywords = r'\b(waiter|waitress|chef|hostess|sommelier|bellboy|receptionist|guest service|hotel|resort|restaurant|food|beverage|catering|hospitality|barista|bartender|housekeeping|concierge|front desk|kitchen|culinary|server|banquet|event manager|spa|tourism|guest relations|food service|chef de rang|outlet supervisor)\b'
@@ -38,12 +38,14 @@ def infer_sector(title):
     return 'Other'
 
 def run_scraper():
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Run in headless mode
+    chrome_options.add_argument("--no-sandbox")  # Required for Render
+    chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource issues
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     fieldnames = ["title", "company", "location", "salary", "link", "description", "posted_date", "source", "sector"]
     
-    # Ensure CSV has headers
+    # Ensure CSV has headers in the project directory
     os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
     if not os.path.exists(CSV_FILE) or os.path.getsize(CSV_FILE) == 0:
         with open(CSV_FILE, "w", newline="", encoding="utf-8-sig") as f:
