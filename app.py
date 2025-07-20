@@ -284,6 +284,29 @@ def download():
         return send_file(csv_path, as_attachment=True, download_name=f'jobs_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
     return jsonify({'error': 'No jobs.csv file found!'}), 404
 
+def init_db():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS jobs (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            company VARCHAR(255),
+            location VARCHAR(255),
+            salary VARCHAR(100),
+            link VARCHAR(255) UNIQUE NOT NULL,
+            description TEXT,
+            posted_date TIMESTAMP,
+            source VARCHAR(100),
+            sector VARCHAR(100)
+        )
+    """)
+    conn.commit()
+    cur.close()
+    conn.close()
+    print("Database initialized with jobs table.")
+
 if __name__ == '__main__':
+    init_db()  # Initialize database on startup
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)  # Remove debug=True for production
+    app.run(host='0.0.0.0', port=port, debug=False)
