@@ -34,7 +34,9 @@ def index():
 @app.route('/api/scrape', methods=['POST'])
 def api_scrape():
     try:
-        jobs = run_scraper()  # Get jobs from scraper
+        jobs = run_scraper()
+        if not jobs:
+            return jsonify({'success': False, 'message': 'No jobs scraped'}), 400
         conn = get_db_connection()
         cur = conn.cursor()
         for job in jobs:
@@ -52,8 +54,9 @@ def api_scrape():
         conn.close()
         return jsonify({'success': True, 'message': f'Added {len(jobs)} jobs to database'}), 200
     except Exception as e:
+        print(f"Error in /api/scrape: {e}")
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
-
+        
 @app.route('/api/stats')
 def api_stats():
     try:
@@ -282,4 +285,5 @@ def download():
     return jsonify({'error': 'No jobs.csv file found!'}), 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)  # Remove debug=True for production
