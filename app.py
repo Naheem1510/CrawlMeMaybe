@@ -83,9 +83,11 @@ def api_stats():
 def api_jobs():
     try:
         conn = get_db_connection()
+        print(f"Connected to database: {os.getenv('DATABASE_URL')}")
         cur = conn.cursor(cursor_factory=RealDictCursor)
         cur.execute("SELECT id, title, company, location, salary, link, description, posted_date, source, sector FROM jobs ORDER BY posted_date DESC LIMIT 20")
         jobs = cur.fetchall()
+        print(f"Retrieved {len(jobs)} jobs from database")
         cur.close()
         conn.close()
         return jsonify({'jobs': list(jobs) if jobs else [], 'total': len(jobs)})
