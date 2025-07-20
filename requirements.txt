@@ -1,0 +1,11 @@
+flask
+flask-cors
+fastapi
+uvicorn[standard]
+sqlalchemy
+selenium
+beautifulsoup4
+webdriver-manager
+pdfplumber
+python-multipart
+pydantic

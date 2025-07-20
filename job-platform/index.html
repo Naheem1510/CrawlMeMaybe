@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrawlMeMaybe - Job Matching Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a3e;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--accent);
+        }
+
+        /* Main Content */
+        main {
+            padding: 2rem 0;
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Tabs */
+        .tab-container {
+            margin-bottom: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* CV Upload Section */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            background: var(--glass);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(240, 147, 251, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--accent);
+            background: rgba(240, 147, 251, 0.2);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--glass);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Job Grid */
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .job-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .job-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .job-company {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .sector-tag {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .job-location {
+            color: var(--text-secondary);
+            margin: 0.5rem 0;
+        }
+
+        .match-percentage {
+            background: var(--success);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        /* Search and Filter */
+        .search-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        select {
+            padding: 0.75rem 1rem;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .chart-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Loading and Status */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+
+        .status-info {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        /* Skills Tags */
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .skill-tag {
+            background: rgba(102, 126, 234, 0.2);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            border: 1px solid var(--primary);
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .search-section {
+                flex-direction: column;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .jobs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Hidden file input */
+        #cvFileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-briefcase"></i> CrawlMeMaybe
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="nav-link active" data-tab="dashboard">Dashboard</a></li>
+                        <li><a href="#" class="nav-link" data-tab="upload">Upload CV</a></li>
+                        <li><a href="#" class="nav-link" data-tab="browse">Browse Jobs</a></li>
+                        <li><a href="#" class="nav-link" data-tab="analytics">Analytics</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1>CrawlMeMaybe</h1>
+                <p>Hey, I just met you… and this is crazy… And we found your dream job?</p>
+            </section>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="glass-card">
+                    <h2><i class="fas fa-chart-line"></i> Dashboard Overview</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <!-- Stats will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload CV Tab -->
+            <div id="upload" class="tab-content">
+                <div class="glass-card">
+                    <h2><i class="fas fa-file-upload"></i> Upload Your CV</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3>Drop your CV here or click to browse</h3>
+                        <p>Supported formats: PDF, DOC, DOCX, TXT (Max 16MB)</p>
+                        <button class="btn btn-primary" onclick="document.getElementById('cvFileInput').click()">
+                            <i class="fas fa-file-plus"></i> Choose File
+                        </button>
+                    </div>
+                    <input type="file" id="cvFileInput" accept=".pdf,.doc,.docx,.txt">
+                    
+                    <div id="cvAnalysisResults" style="display: none;">
+                        <h3>CV Analysis Results</h3>
+                        <div id="detectedSkills"></div>
+                        <div id="jobMatches"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Browse Jobs Tab -->
+            <div id="browse" class="tab-content">
+                <div class="glass-card">
+                    <h2><i class="fas fa-search"></i> Browse Jobs</h2>
+                    <div class="search-section">
+                        <input type="text" id="jobSearch" class="search-input" placeholder="Search jobs by title or keyword...">
+                        <select id="sectorFilter">
+                            <option value="">All Sectors</option>
+                        </select>
+                        <select id="locationFilter">
+                            <option value="">All Locations</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="searchJobs()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <button class="btn btn-secondary" onclick="refreshJobs()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="jobsContainer">
+                        <div class="jobs-grid" id="jobsGrid">
+                            <!-- Jobs will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics" class="tab-content">
+                <div class="glass-card">
+                    <h2><i class="fas fa-chart-pie"></i> Job Market Analytics</h2>
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h3 class="chart-title">Jobs by Sector</h3>
+                            <canvas id="sectorChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3 class="chart-title">Jobs by Location</h3>
+                            <canvas id="locationChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3 class="chart-title">Top Companies</h3>
+                            <canvas id="companyChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3 class="chart-title">Jobs Over Time</h3>
+                            <canvas id="timeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Global variables
+        let currentJobs = [];
+        let allJobs = [];
+        let charts = {};
+
+        // Tab switching
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabName = link.dataset.tab;
+                switchTab(tabName);
+            });
+        });
+
+        function switchTab(tabName) {
+            // Update nav
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            
+            // Load tab-specific data
+            if (tabName === 'dashboard') loadDashboard();
+            if (tabName === 'browse') loadJobs();
+            if (tabName === 'analytics') loadAnalytics();
+        }
+
+        // Dashboard functions
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <span class="stat-number">${data.total_jobs || 0}</span>
+                        <div class="stat-label">Total Jobs Available</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">${Object.keys(data.sectors || {}).length}</span>
+                        <div class="stat-label">Industry Sectors</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">${data.latest_update ? new Date(data.latest_update).toLocaleDateString() : 'N/A'}</span>
+                        <div class="stat-label">Last Updated</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">🎯</span>
+                        <div class="stat-label">Dream Job Finder</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // CV Upload functions
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('cvFileInput');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        async function handleFileUpload(file) {
+            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+            
+            if (!allowedTypes.includes(file.type)) {
+                showMessage('Please upload a PDF, DOC, DOCX, or TXT file.', 'error');
+                return;
+            }
+
+            if (file.size > 16 * 1024 * 1024) {
+                showMessage('File size must be less than 16MB.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('cv_file', file);
+
+            try {
+                showMessage('Analyzing your CV...', 'info');
+                
+                const response = await fetch('/api/upload-cv', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayCVResults(result);
+                    showMessage('CV analyzed successfully!', 'success');
+                } else {
+                    showMessage(result.error || 'Error analyzing CV', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error: Unable to analyze CV', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        function displayCVResults(result) {
+            const resultsDiv = document.getElementById('cvAnalysisResults');
+            const skillsDiv = document.getElementById('detectedSkills');
+            const matchesDiv = document.getElementById('jobMatches');
+
+            // Display detected skills
+            const skillsHTML = `
+                <h4>Detected Skills (${result.detected_skills.length})</h4>
+                <div class="skills-container">
+                    ${result.detected_skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                </div>
+            `;
+
+            // Display job matches
+            const matchesHTML = `
+                <h4>Job Matches (${result.total_matches})</h4>
+                <div class="jobs-grid">
+                    ${result.job_matches.slice(0, 6).map(match => `
+                        <div class="job-card">
+                            <div class="match-percentage">${match.match_percentage}% Match</div>
+                            <div class="job-header">
+                                <div>
+                                    <div class="job-title">${match.job.title}</div>
+                                    <div class="job-company">${match.job.company}</div>
+                                </div>
+                                <span class="sector-tag">${match.job.sector}</span>
+                            </div>
+                            <div class="job-location"><i class="fas fa-map-marker-alt"></i> ${match.job.location}</div>
+                            <div class="skills-container">
+                                ${match.matched_skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                            </div>
+                            <a href="${match.job.link}" target="_blank" class="btn btn-primary" style="margin-top: 1rem;">
+                                <i class="fas fa-external-link-alt"></i> View Job
+                            </a>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            skillsDiv.innerHTML = skillsHTML;
+            matchesDiv.innerHTML = matchesHTML;
+            resultsDiv.style.display = 'block';
+        }
+
+        // Job browsing functions
+        async function loadJobs() {
+            try {
+                const response = await fetch('/api/jobs');
+                const data = await response.json();
+                allJobs = data.jobs;
+                displayJobs(allJobs);
+                populateFilters();
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                showMessage('Error loading jobs', 'error');
+            }
+        }
+
+        function displayJobs(jobs) {
+            const jobsGrid = document.getElementById('jobsGrid');
+            
+            if (jobs.length === 0) {
+                jobsGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Not Job… Unless we find it for you.</p>';
+                return;
+            }
+
+            jobsGrid.innerHTML = jobs.map(job => `
+                <div class="job-card">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-title">${job.title}</div>
+                            <div class="job-company">${job.company}</div>
+                        </div>
+                        <span class="sector-tag">${job.sector}</span>
+                    </div>
+                    <div class="job-location"><i class="fas fa-map-marker-alt"></i> ${job.location}</div>
+                    <div style="margin: 1rem 0; color: var(--text-secondary); font-size: 0.9rem;">
+                        ${job.description ? job.description.substring(0, 100) + '...' : 'No description available'}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                        <span style="color: var(--text-secondary); font-size: 0.9rem;">
+                            ${job.salary || 'Salary not specified'}
+                        </span>
+                        <a href="${job.link}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt"></i> Apply
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populateFilters() {
+            const sectors = [...new Set(allJobs.map(job => job.sector))].filter(Boolean);
+            const locations = [...new Set(allJobs.map(job => job.location))].filter(Boolean);
+
+            const sectorFilter = document.getElementById('sectorFilter');
+            const locationFilter = document.getElementById('locationFilter');
+
+            sectorFilter.innerHTML = '<option value="">All Sectors</option>' + 
+                sectors.map(sector => `<option value="${sector}">${sector}</option>`).join('');
+
+            locationFilter.innerHTML = '<option value="">All Locations</option>' + 
+                locations.map(location => `<option value="${location}">${location}</option>`).join('');
+        }
+
+        async function searchJobs() {
+            const query = document.getElementById('jobSearch').value;
+            const sector = document.getElementById('sectorFilter').value;
+            const location = document.getElementById('locationFilter').value;
+
+            try {
+                const params = new URLSearchParams();
+                if (query) params.append('q', query);
+                if (sector) params.append('sector', sector);
+                if (location) params.append('location', location);
+
+                const response = await fetch(`/api/jobs/search?${params}`);
+                const data = await response.json();
+                displayJobs(data.jobs);
+            } catch (error) {
+                console.error('Error searching jobs:', error);
+                showMessage('Error searching jobs', 'error');
+            }
+        }
+
+        function refreshJobs() {
+            document.getElementById('jobSearch').value = '';
+            document.getElementById('sectorFilter').value = '';
+            document.getElementById('locationFilter').value = '';
+            loadJobs();
+        }
+
+        // Analytics functions
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/visualization/data');
+                const data = await response.json();
+                createCharts(data);
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                showMessage('Error loading analytics', 'error');
+            }
+        }
+
+        function createCharts(data) {
+            // Destroy existing charts
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+
+            // Chart configuration
+            const chartOptions = {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: 'rgba(255, 255, 255, 0.8)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: 'rgba(255, 255, 255, 0.8)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            };
+
+            // Sector chart
+            const sectorCtx = document.getElementById('sectorChart').getContext('2d');
+            charts.sector = new Chart(sectorCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data.sectors),
+                    datasets: [{
+                        data: Object.values(data.sectors),
+                        backgroundColor: [
+                            '#667eea', '#764ba2', '#f093fb', '#4ade80',
+                            '#fbbf24', '#ef4444', '#8b5cf6', '#06b6d4'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'rgba(255, 255, 255, 0.8)' }
+                        }
+                    }
+                }
+            });
+
+            // Location chart
+            const locationCtx = document.getElementById('locationChart').getContext('2d');
+            charts.location = new Chart(locationCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(data.locations),
+                    datasets: [{
+                        label: 'Jobs',
+                        data: Object.values(data.locations),
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: chartOptions
+            });
+
+            // Company chart
+            const companyCtx = document.getElementById('companyChart').getContext('2d');
+            charts.company = new Chart(companyCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(data.top_companies),
+                    datasets: [{
+                        label: 'Jobs',
+                        data: Object.values(data.top_companies),
+                        backgroundColor: '#f093fb'
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    indexAxis: 'y'
+                }
+            });
+
+            // Time chart
+            const timeCtx = document.getElementById('timeChart').getContext('2d');
+            charts.time = new Chart(timeCtx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(data.jobs_by_date),
+                    datasets: [{
+                        label: 'Jobs Posted',
+                        data: Object.values(data.jobs_by_date),
+                        borderColor: '#4ade80',
+                        backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        // Utility functions
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `status-message status-${type}`;
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+        });
+
+        // Auto-refresh jobs every 5 minutes
+        setInterval(() => {
+            if (document.querySelector('.nav-link[data-tab="browse"]').classList.contains('active')) {
+                loadJobs();
+            }
+        }, 300000);
+    </script>
+</body>
+</html>
