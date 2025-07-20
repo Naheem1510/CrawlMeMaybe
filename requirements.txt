@@ -9,3 +9,5 @@ webdriver-manager
 pdfplumber
 python-multipart
 pydantic
+gunicorn
+docx2txt
